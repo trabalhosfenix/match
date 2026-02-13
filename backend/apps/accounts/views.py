@@ -137,6 +137,7 @@ class FollowersListView(generics.ListAPIView):
     """Lista de seguidores"""
     serializer_class = FollowSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
     
     def get_queryset(self):
         user_id = self.kwargs['user_id']
@@ -146,6 +147,7 @@ class FollowingListView(generics.ListAPIView):
     """Lista de quem o usuário segue"""
     serializer_class = FollowSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
     
     def get_queryset(self):
         user_id = self.kwargs['user_id']
