@@ -12,8 +12,8 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Test mode (pytest / manage.py test)
-IS_TESTING = 'pytest' in sys.modules or any(arg in sys.argv for arg in ['test', 'pytest'])
+# Test mode driven by explicit environment flag (e.g. DJANGO_TESTING=true)
+IS_TESTING = os.getenv('DJANGO_TESTING', '').lower() in ('1', 'true', 'yes')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-development-key-change-in-production')
