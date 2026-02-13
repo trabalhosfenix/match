@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: social_db
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=social_db
+      - POSTGRES_USER=social_user
+      - POSTGRES_PASSWORD=social_pass123
+    ports:
+      - "5432:5432"
+    networks:
+      - social_network
+
+  web:
+    build: .
+    container_name: social_web
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_NAME=social_db
+      - DB_USER=social_user
+      - DB_PASSWORD=social_pass123
+      - DEBUG=1
+    networks:
+      - social_network
+
+networks:
+  social_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
