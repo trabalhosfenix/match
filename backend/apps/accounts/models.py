@@ -2,6 +2,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 import os
 
 class UserLevel(models.TextChoices):
@@ -142,6 +143,15 @@ class Follow(models.Model):
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
+
+        if not is_new:
+            previous = Follow.objects.filter(pk=self.pk).values('follower_id', 'following_id').first()
+            if previous and (
+                previous['follower_id'] != self.follower_id
+                or previous['following_id'] != self.following_id
+            ):
+                raise ValidationError('Não é permitido alterar follower/following de uma relação já existente.')
+
         super().save(*args, **kwargs)
         if is_new:
             User.objects.filter(pk=self.follower_id).update(following_count=models.F('following_count') + 1)

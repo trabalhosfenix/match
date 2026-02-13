@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import User, Follow, UserLevel, UserActivity  # Adicione UserActivity aqui
 from django.core import exceptions
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 
 
 class UserSerializer(serializers.ModelSerializer):
