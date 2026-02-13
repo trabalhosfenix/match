@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
+from django.utils import timezone
 
 from .models import User, Follow, UserActivity, UserLevel
 from .serializers import (
