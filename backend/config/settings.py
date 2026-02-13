@@ -1,5 +1,6 @@
 # backend/config/settings.py
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -9,6 +10,10 @@ load_dotenv()
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# Test mode (pytest / manage.py test)
+IS_TESTING = 'pytest' in sys.modules or any(arg in sys.argv for arg in ['test', 'pytest'])
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-development-key-change-in-production')
@@ -90,22 +95,37 @@ DATABASES = {
 }
 
 # Redis/Cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://redis:6379/0'),
+if IS_TESTING:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-cache',
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': os.getenv('REDIS_URL', 'redis://redis:6379/0'),
+        }
+    }
 
 # Channels
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [os.getenv('REDIS_URL', 'redis://redis:6379/0')],
+if IS_TESTING:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        }
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [os.getenv('REDIS_URL', 'redis://redis:6379/0')],
+            },
         },
-    },
-}
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -205,7 +225,11 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # MinIO/S3
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+if IS_TESTING:
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+else:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 AWS_ACCESS_KEY_ID = os.getenv('MINIO_ACCESS_KEY', 'minioadmin')
 AWS_SECRET_ACCESS_KEY = os.getenv('MINIO_SECRET_KEY', 'minioadmin123')
 AWS_STORAGE_BUCKET_NAME = os.getenv('MINIO_BUCKET_NAME', 'social-media')

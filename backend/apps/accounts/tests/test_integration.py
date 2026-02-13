@@ -17,8 +17,8 @@ class TestCompleteUserJourney:
         user_data = {
             'username': 'jornada',
             'email': 'jornada@test.com',
-            'password': 'senha123',
-            'password2': 'senha123'
+            'password': 'T7v!9Qp#2Lm$4Xz',
+            'password2': 'T7v!9Qp#2Lm$4Xz'
         }
         response = api_client.post(register_url, user_data)
         assert response.status_code == status.HTTP_201_CREATED
@@ -26,7 +26,7 @@ class TestCompleteUserJourney:
         
         # 2. Login
         login_url = reverse('login')
-        login_data = {'username': 'jornada', 'password': 'senha123'}
+        login_data = {'username': 'jornada', 'password': 'T7v!9Qp#2Lm$4Xz'}
         response = api_client.post(login_url, login_data)
         assert response.status_code == status.HTTP_200_OK
         token = response.data['access']

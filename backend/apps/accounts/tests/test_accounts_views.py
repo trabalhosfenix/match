@@ -13,8 +13,8 @@ class TestAuthViews:
         data = {
             'username': 'teste',
             'email': 'teste@test.com',
-            'password': 'senha123',
-            'password2': 'senha123'
+            'password': 'T7v!9Qp#2Lm$4Xz',
+            'password2': 'T7v!9Qp#2Lm$4Xz'
         }
         response = api_client.post(url, data)
         assert response.status_code == status.HTTP_201_CREATED
