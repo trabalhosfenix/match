@@ -15,8 +15,8 @@ class TestRegisterSerializer:
         data = {
             'username': 'novouser',
             'email': 'novo@test.com',
-            'password': 'SenhaForte@123',
-            'password2': 'SenhaForte@123',
+            'password': 'T7v!9Qp#2Lm$4Xz',
+            'password2': 'T7v!9Qp#2Lm$4Xz',
             'first_name': 'João',
             'last_name': 'Silva'
         }
@@ -33,7 +33,7 @@ class TestRegisterSerializer:
         data = {
             'username': 'novouser',
             'email': 'novo@test.com',
-            'password': 'SenhaForte@123',
+            'password': 'T7v!9Qp#2Lm$4Xz',
             'password2': 'senhadiferente'
         }
         serializer = RegisterSerializer(data=data)
@@ -45,8 +45,8 @@ class TestRegisterSerializer:
         data = {
             'username': user_user.username,
             'email': 'outro@test.com',
-            'password': 'SenhaForte@123',
-            'password2': 'SenhaForte@123'
+            'password': 'T7v!9Qp#2Lm$4Xz',
+            'password2': 'T7v!9Qp#2Lm$4Xz'
         }
         serializer = RegisterSerializer(data=data)
         assert not serializer.is_valid()
