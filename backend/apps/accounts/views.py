@@ -91,12 +91,6 @@ class FollowView(APIView):
         )
         
         if created:
-            # Atualizar contadores
-            request.user.following_count += 1
-            request.user.save()
-            user_to_follow.followers_count += 1
-            user_to_follow.save()
-            
             # Registrar atividade
             UserActivity.objects.create(
                 user=request.user,
@@ -128,12 +122,6 @@ class UnfollowView(APIView):
                 following=user_to_unfollow
             )
             follow.delete()
-            
-            # Atualizar contadores
-            request.user.following_count -= 1
-            request.user.save()
-            user_to_unfollow.followers_count -= 1
-            user_to_unfollow.save()
             
             return Response(
                 {'message': f'Você deixou de seguir {user_to_unfollow.username}'},

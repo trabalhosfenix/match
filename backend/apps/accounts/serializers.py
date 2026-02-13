@@ -1,6 +1,5 @@
 # backend/apps/accounts/serializers.py
 from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
 from .models import User, Follow, UserLevel, UserActivity  # Adicione UserActivity aqui
 from django.core import exceptions
 from django.contrib.auth import authenticate
@@ -27,11 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        write_only=True,
-        required=True,
-        validators=[validate_password]
-    )
+    password = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
     
     class Meta:

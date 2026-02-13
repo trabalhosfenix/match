@@ -128,7 +128,7 @@ class Follow(models.Model):
         verbose_name='Seguindo'
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         unique_together = ['follower', 'following']
         verbose_name = 'Seguir'
@@ -136,9 +136,23 @@ class Follow(models.Model):
         indexes = [
             models.Index(fields=['follower', 'following']),
         ]
-    
+
     def __str__(self):
         return f"{self.follower.username} segue {self.following.username}"
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            User.objects.filter(pk=self.follower_id).update(following_count=models.F('following_count') + 1)
+            User.objects.filter(pk=self.following_id).update(followers_count=models.F('followers_count') + 1)
+
+    def delete(self, *args, **kwargs):
+        follower_id = self.follower_id
+        following_id = self.following_id
+        super().delete(*args, **kwargs)
+        User.objects.filter(pk=follower_id).update(following_count=models.F('following_count') - 1)
+        User.objects.filter(pk=following_id).update(followers_count=models.F('followers_count') - 1)
 
 class UserActivity(models.Model):
     """Registro de atividades do usuário"""
