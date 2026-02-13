@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
+from django.utils import timezone
 
 from .models import User, Follow, UserActivity, UserLevel
 from .serializers import (
@@ -90,12 +91,6 @@ class FollowView(APIView):
         )
         
         if created:
-            # Atualizar contadores
-            request.user.following_count += 1
-            request.user.save()
-            user_to_follow.followers_count += 1
-            user_to_follow.save()
-            
             # Registrar atividade
             UserActivity.objects.create(
                 user=request.user,
@@ -128,12 +123,6 @@ class UnfollowView(APIView):
             )
             follow.delete()
             
-            # Atualizar contadores
-            request.user.following_count -= 1
-            request.user.save()
-            user_to_unfollow.followers_count -= 1
-            user_to_unfollow.save()
-            
             return Response(
                 {'message': f'Você deixou de seguir {user_to_unfollow.username}'},
                 status=status.HTTP_200_OK
@@ -148,6 +137,7 @@ class FollowersListView(generics.ListAPIView):
     """Lista de seguidores"""
     serializer_class = FollowSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
     
     def get_queryset(self):
         user_id = self.kwargs['user_id']
@@ -157,6 +147,7 @@ class FollowingListView(generics.ListAPIView):
     """Lista de quem o usuário segue"""
     serializer_class = FollowSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
     
     def get_queryset(self):
         user_id = self.kwargs['user_id']
