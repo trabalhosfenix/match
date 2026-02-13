@@ -45,3 +45,9 @@ class CanChat(permissions.BasePermission):
     
     def has_permission(self, request, view):
         return request.user.can_chat()
+
+class CanViewContent(permissions.BasePermission):
+    """Verifica se pode visualizar conteúdo social"""
+
+    def has_permission(self, request, view):
+        return request.user.level != UserLevel.ANONIMO

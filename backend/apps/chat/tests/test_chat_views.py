@@ -2,6 +2,7 @@ import pytest
 from rest_framework import status
 from django.urls import reverse
 from apps.chat.models import ChatRoom, Message
+from apps.accounts.models import Follow
 
 @pytest.mark.django_db
 class TestChatViews:
@@ -9,6 +10,8 @@ class TestChatViews:
     
     def test_create_private_room(self, auth_client, user_user, plus_user):
         """Testa criar sala privada"""
+        Follow.objects.create(follower=user_user, following=plus_user)
+        Follow.objects.create(follower=plus_user, following=user_user)
         client = auth_client(user_user)
         url = reverse('chat-room-create-private')
         data = {'user_id': plus_user.id}
@@ -20,6 +23,8 @@ class TestChatViews:
     
     def test_create_existing_room(self, auth_client, user_user, plus_user):
         """Testa reutilizar sala existente"""
+        Follow.objects.create(follower=user_user, following=plus_user)
+        Follow.objects.create(follower=plus_user, following=user_user)
         # Criar sala uma vez
         room = ChatRoom.objects.create(room_type='private')
         room.participants.add(user_user, plus_user)
@@ -41,8 +46,21 @@ class TestChatViews:
         
         assert response.status_code == status.HTTP_403_FORBIDDEN
     
+
+    def test_create_private_room_requires_mutual_follow(self, auth_client, user_user, plus_user):
+        """Bloqueia chat sem follow mútuo"""
+        Follow.objects.create(follower=user_user, following=plus_user)
+
+        client = auth_client(user_user)
+        url = reverse('chat-room-create-private')
+        response = client.post(url, {'user_id': plus_user.id})
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
     def test_send_message(self, auth_client, user_user, plus_user):
         """Testa enviar mensagem"""
+        Follow.objects.create(follower=user_user, following=plus_user)
+        Follow.objects.create(follower=plus_user, following=user_user)
         # Criar sala
         room = ChatRoom.objects.create(room_type='private')
         room.participants.add(user_user, plus_user)
@@ -60,6 +78,8 @@ class TestChatViews:
     
     def test_list_messages(self, auth_client, user_user, plus_user):
         """Testa listar mensagens da sala"""
+        Follow.objects.create(follower=user_user, following=plus_user)
+        Follow.objects.create(follower=plus_user, following=user_user)
         room = ChatRoom.objects.create(room_type='private')
         room.participants.add(user_user, plus_user)
         
@@ -83,6 +103,8 @@ class TestChatViews:
     
     def test_unread_messages(self, auth_client, user_user, plus_user):
         """Testa mensagens não lidas"""
+        Follow.objects.create(follower=user_user, following=plus_user)
+        Follow.objects.create(follower=plus_user, following=user_user)
         room = ChatRoom.objects.create(room_type='private')
         room.participants.add(user_user, plus_user)
         
